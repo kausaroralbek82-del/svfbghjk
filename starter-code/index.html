@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevJobs</title>
+    <style>
+      body {
+        margin: 0;
+        background: hsl(210, 22%, 96%);
+        font-family: Arial;
+      }
+
+      .header {
+        height: 120px;
+        background: url("assets/desktop/bg-pattern-header.svg") no-repeat center;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        padding: 0 50px;
+      }
+
+      .searchbar {
+        background: white;
+        margin: -30px auto;
+        padding: 20px;
+        max-width: 900px;
+        display: flex;
+        gap: 15px;
+        border-radius: 10px;
+      }
+
+      .searchbar input {
+        flex: 1;
+        padding: 10px;
+      }
+
+      .right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      button {
+        background: hsl(235, 69%, 61%);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+      }
+
+      .grid {
+        max-width: 1000px;
+        margin: 60px auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        position: relative;
+      }
+
+      .card img {
+        width: 40px;
+        position: absolute;
+        top: -20px;
+        left: 20px;
+        background: white;
+        padding: 8px;
+        border-radius: 10px;
+      }
+
+      .card p {
+        font-size: 12px;
+        opacity: 0.7;
+      }
+
+      .card h3 {
+        margin: 10px 0;
+      }
+
+      .card span {
+        color: hsl(235, 69%, 61%);
+        font-weight: bold;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header">
+      <img src="assets/desktop/logo.svg" />
+    </div>
+
+    <section class="searchbar">
+      <input id="searchInput" type="text" placeholder="Filter by title..." />
+      <input
+        id="locationInput"
+        type="text"
+        placeholder="Filter by location..."
+      />
+      <div class="right">
+        <input id="fullTime" type="checkbox" />
+        <span>Full Time</span>
+        <button onclick="filterJobs()">Search</button>
+      </div>
+    </section>
+
+    <section class="grid" id="jobs"></section>
+
+    <script>
+      const url = "./data.json";
+      let jobs = [];
+
+      async function getJobs() {
+        const res = await fetch(url);
+        jobs = await res.json();
+        displayJobs(jobs);
+      }
+
+      function displayJobs(list) {
+        const container = document.getElementById("jobs");
+        container.innerHTML = "";
+
+        list.forEach((job) => {
+          container.innerHTML += `
+      <div class="card">
+        <img src="${job.logo}">
+        <p>${job.postedAt} • ${job.contract}</p>
+        <h3>${job.position}</h3>
+        <p>${job.company}</p>
+        <span>${job.location}</span>
+      </div>
+    `;
+        });
+      }
+
+      function filterJobs() {
+        const search = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const location = document
+          .getElementById("locationInput")
+          .value.toLowerCase();
+        const fullTime = document.getElementById("fullTime").checked;
+
+        const filtered = jobs.filter(
+          (job) =>
+            job.position.toLowerCase().includes(search) &&
+            job.location.toLowerCase().includes(location) &&
+            (!fullTime || job.contract === "Full Time"),
+        );
+
+        displayJobs(filtered);
+      }
+
+      getJobs();
+    </script>
+  </body>
+</html>
